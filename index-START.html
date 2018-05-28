@@ -25,6 +25,7 @@
       <textarea name="text">Hello! I love JavaScript 👍</textarea>
       <button id="stop">Stop!</button>
       <button id="speak">Speak</button>
+      <button id="english">Filter ON</button>
 
     </div>
 
@@ -35,14 +36,23 @@
   const options = document.querySelectorAll('[type="range"], [name="text"]');
   const speakButton = document.querySelector('#speak');
   const stopButton = document.querySelector('#stop');
+  const voiceButton = document.querySelector('#english');
+  let eng = true;
+  
   msg.text = document.querySelector('[name=text]').value;
 
   function populateVoices() {
-    voices = this.getVoices();
+    voices = speechSynthesis.getVoices();
+    if (eng) {
     voicesDropdown.innerHTML = voices
       .filter(voice => voice.lang.includes('en'))
-      .map(voice => `<option value=${voice.name}>${voice.name} (${voice.lang})</option>`)
+      .map(voice => `<option value="${voice.name}">${voice.name} (${voice.lang})</option>`)
       .join('');
+    } else {
+    voicesDropdown.innerHTML = voices
+      .map(voice => `<option value="${voice.name}">${voice.name} (${voice.lang})</option>`)
+      .join('');
+    }
   }
 
   function setVoice() {
@@ -63,11 +73,28 @@
     toggle();
   }
 
+  function styleButton() {
+    if (eng) {
+      voiceButton.innerHTML = 'Filter ON';
+    } else {
+      voiceButton.innerHTML = 'Filter OFF';
+    }
+  }
+
+  function toggleEnglish() {
+      eng = !eng;
+      // console.log(eng);
+      populateVoices();
+      msg.voice = voices.find(voice => voice.name === this.value);
+      styleButton();
+  }
+
   speechSynthesis.addEventListener('voiceschanged', populateVoices);
   voicesDropdown.addEventListener('change', setVoice);
   options.forEach(option => option.addEventListener('change', setOption));
   speakButton.addEventListener('click', toggle);
   stopButton.addEventListener('click', () => toggle(false));
+  voiceButton.addEventListener('click', toggleEnglish);
 
 </script>
 
